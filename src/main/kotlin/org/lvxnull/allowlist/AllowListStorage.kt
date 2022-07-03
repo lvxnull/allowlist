@@ -41,9 +41,9 @@ class AllowListStorage(configRoot: Path): AutoCloseable, Iterable<String> {
             var nth = 1
             var line = it.readLine()?.trim()
             while(line != null) {
-                if(nameRegex.matchEntire(line) != null) {
-                    allowed.add(line)
-                } else {
+                try {
+                    add(line)
+                } catch(e: IllegalArgumentException) {
                     logger.warn("Line {}: Ignoring invalid name '{}'", nth, line)
                 }
                 line = it.readLine()?.trim()
@@ -68,7 +68,12 @@ class AllowListStorage(configRoot: Path): AutoCloseable, Iterable<String> {
 
     fun isAllowed(name: String?) = allowed.contains(name)
 
-    fun add(name: String) = allowed.add(name)
+    fun add(name: String): Boolean {
+        if(nameRegex.matchEntire(name) == null) {
+            throw IllegalArgumentException("Invalid player name.")
+        }
+        return allowed.add(name)
+    }
 
     fun clear() = allowed.clear()
 
