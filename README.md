@@ -12,6 +12,8 @@ Allowlist is a simple server-side minecraft fabric mod which prevents unauthoriz
 from entering the game. Unlike minecraft's built in whitelist commands, this mod
 uses user names instead of instead of UUIDs.
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Configuration
 
 Allowed players are stored in `/path/to/server/config/allowlist.txt`, one
@@ -22,4 +24,3 @@ is stopped or through `/al add <player>` command while it's running.
 
 ## License
 This software is distributed under the GNU General Public License, Version 3.0
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
