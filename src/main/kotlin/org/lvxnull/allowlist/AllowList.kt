@@ -15,13 +15,11 @@
 
 package org.lvxnull.allowlist
 
-import com.mojang.brigadier.CommandDispatcher
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
-import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.Text
 import org.apache.logging.log4j.LogManager
@@ -36,7 +34,10 @@ object AllowList: ModInitializer {
 
     override fun onInitialize() {
         logger.info("Starting allowlist {}", meta.version)
-        storage.load()
+
+        ServerLifecycleEvents.SERVER_STARTING.register {
+            storage.load()
+        }
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             dispatcher.register(
