@@ -61,10 +61,10 @@ object AllowList: ModInitializer {
                             .suggests { _, builder -> CommandSource.suggestMatching(storage, builder) }
                             .executes {
                                 val player = getString(it, "player")
-                                if(!storage.isAllowed(player)) {
+                                if(!storage.remove(player)) {
                                     throw SimpleCommandExceptionType(Text.of("Player not on allowlist")).create()
                                 }
-                                storage.remove(player)
+
                                 it.source.sendFeedback(Text.of("Player $player has been removed from allowlist"), true)
                                 1
                             }
