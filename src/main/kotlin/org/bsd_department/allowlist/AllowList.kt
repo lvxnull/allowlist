@@ -26,7 +26,9 @@ import net.fabricmc.loader.api.metadata.ModMetadata
 import net.minecraft.command.CommandSource
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
+import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -34,7 +36,6 @@ import org.apache.logging.log4j.Logger
 object AllowList: ModInitializer {
     val meta: ModMetadata = FabricLoader.getInstance().getModContainer("allowlist").get().metadata
     val logger: Logger = LogManager.getLogger("AllowList")
-
     val storage = AllowListStorage(FabricLoader.getInstance().configDir)
 
     override fun onInitialize() {
@@ -48,11 +49,14 @@ object AllowList: ModInitializer {
             dispatcher.register(
                 literal("al").requires { s -> s.hasPermissionLevel(3) }.then(
                     literal("list").executes {
-                        val sb = StringBuilder("§ePlayers currently allowed:§r\n")
+                        val text: LiteralText = LiteralText.EMPTY as LiteralText
+                        text.append(LiteralText("Players currently allowed:\n").formatted(Formatting.YELLOW))
                         for(p in storage) {
-                            sb.appendLine(" - §a$p§r")
+                            text.append(" - ")
+                                .append(LiteralText(p).formatted(Formatting.GREEN))
+                                .append("\n")
                         }
-                        it.source.sendFeedback(Text.of(sb.toString()), false)
+                        it.source.sendFeedback(text, false)
                         1
                     }
                 ).then(
