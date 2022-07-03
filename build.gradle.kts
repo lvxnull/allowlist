@@ -50,7 +50,6 @@ tasks {
         destinationDirectory.set(buildDir.resolve("devlibs"))
         dependencies {
             include(dependency("org.xerial:sqlite-jdbc:.*"))
-            include(dependency("org.jetbrains.kotlin:kotlin-stdlib:.*"))
         }
     }
 
@@ -62,6 +61,7 @@ tasks {
         inputs.property("version", project.version)
         filesMatching("fabric.mod.json") { expand(mutableMapOf("version" to project.version)) }
     }
+
     java {
         toolchain { languageVersion.set(JavaLanguageVersion.of(javaVersion.toString())) }
         sourceCompatibility = javaVersion
