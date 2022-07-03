@@ -30,7 +30,7 @@ object AllowList: ModInitializer {
     val storage = AllowListStorage(FabricLoader.getInstance().configDir)
 
     override fun onInitialize() {
-        logger.info("Started allowlist ${meta.version}")
+        logger.info("Starting allowlist {}", meta.version)
         storage.load()
 
         ServerLifecycleEvents.SERVER_STOPPING.register {
@@ -39,7 +39,7 @@ object AllowList: ModInitializer {
     }
 
     private fun onClose() {
-        logger.info("Stopping allowlist ${meta.version}")
+        logger.info("Stopping allowlist {}", meta.version)
         storage.close()
     }
 }
