@@ -69,6 +69,25 @@ object AllowList: ModInitializer {
                                 1
                             }
                     )
+                ).then(
+                    literal("add").then(
+                        argument("player", string())
+                            .suggests { c, builder ->
+                                CommandSource.suggestMatching(c.source.server.playerNames.filterNot(storage::isAllowed), builder)
+                            }
+                            .executes {
+                                val player = getString(it, "player")
+                                try {
+                                    if(!storage.add(player)) {
+                                        throw SimpleCommandExceptionType(Text.of("Player is already on allowlist")).create()
+                                    }
+                                    it.source.sendFeedback(Text.of("Player $player has been added to allowlist"), true)
+                                    1
+                                } catch(e: IllegalArgumentException) {
+                                    throw SimpleCommandExceptionType(Text.of("Invalid player name")).create()
+                                }
+                            }
+                    )
                 )
             )
         }
