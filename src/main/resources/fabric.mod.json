@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "allowlist",
   "version": "${version}",
-  "name": "Mod Name",
+  "name": "AllowList",
   "description": "A name-based allowlist mod for fabric",
   "authors": [
     "lvxnull"
