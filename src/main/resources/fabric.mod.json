@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "allowlist",
+  "version": "${version}",
+  "name": "Mod Name",
+  "description": "A name-based allowlist mod for fabric",
+  "authors": [
+    "lvxnull"
+  ],
+  "license": "GPL-3.0-or-later",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "org.lvxnull.allowlist.AllowList"
+      }
+    ]
+  },
+  "mixins": [
+    "allowlist.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.13.3",
+    "fabric": "*",
+    "fabric-language-kotlin": ">=1.7.4+kotlin.1.6.21",
+    "minecraft": "1.17.x",
+    "java": ">=17"
+  }
+}
