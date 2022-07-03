@@ -32,7 +32,7 @@ public class PlayerJoinMixin {
             method = "checkCanJoin(Ljava/net/SocketAddress;Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/text/Text;",
             cancellable = true)
     private void onJoin(SocketAddress ignored, GameProfile profile, CallbackInfoReturnable<Text> info) {
-        if(!AllowList.INSTANCE.processPlayer(profile)) {
+        if(!AllowList.INSTANCE.getStorage().isAllowed(profile.getName())) {
             info.setReturnValue(Text.of("You're not whitelisted"));
         }
     }
