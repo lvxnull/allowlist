@@ -15,11 +15,16 @@
 
 package org.lvxnull.allowlist
 
+import com.mojang.brigadier.arguments.StringArgumentType.getString
+import com.mojang.brigadier.arguments.StringArgumentType.string
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
+import net.minecraft.command.CommandSource
+import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.Text
 import org.apache.logging.log4j.LogManager
@@ -50,6 +55,20 @@ object AllowList: ModInitializer {
                         it.source.sendFeedback(Text.of(sb.toString()), false)
                         1
                     }
+                ).then(
+                    literal("remove").then(
+                        argument("player", string())
+                            .suggests { _, builder -> CommandSource.suggestMatching(storage, builder) }
+                            .executes {
+                                val player = getString(it, "player")
+                                if(!storage.isAllowed(player)) {
+                                    throw SimpleCommandExceptionType(Text.of("Player not on allowlist")).create()
+                                }
+                                storage.remove(player)
+                                it.source.sendFeedback(Text.of("Player $player has been removed from allowlist"), true)
+                                1
+                            }
+                    )
                 )
             )
         }
