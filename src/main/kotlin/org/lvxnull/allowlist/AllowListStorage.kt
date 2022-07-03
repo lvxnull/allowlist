@@ -66,7 +66,7 @@ class AllowListStorage(configRoot: Path): AutoCloseable, Iterable<String> {
 
     override fun iterator() = allowed.asIterable().iterator()
 
-    fun isAllowed(name: String) = allowed.contains(name)
+    fun isAllowed(name: String?) = allowed.contains(name)
 
     fun add(name: String) = allowed.add(name)
 
