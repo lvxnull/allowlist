@@ -21,19 +21,17 @@ import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import kotlin.reflect.jvm.isAccessible
 
 @Suppress("UNUSED")
 object AllowList: ModInitializer {
     val meta: ModMetadata = FabricLoader.getInstance().getModContainer("allowlist").get().metadata
     val logger: Logger = LogManager.getLogger("AllowList")
 
-    val storage: AllowListStorage by lazy {
-        AllowListStorage(FabricLoader.getInstance().configDir)
-    }
+    val storage = AllowListStorage(FabricLoader.getInstance().configDir)
 
     override fun onInitialize() {
         logger.info("Started allowlist ${meta.version}")
+        storage.load()
 
         ServerLifecycleEvents.SERVER_STOPPING.register {
             onClose()
@@ -42,8 +40,6 @@ object AllowList: ModInitializer {
 
     private fun onClose() {
         logger.info("Stopping allowlist ${meta.version}")
-        if((::storage.apply { isAccessible = true }.getDelegate() as Lazy<*>).isInitialized()) {
-            storage.close()
-        }
+        storage.close()
     }
 }

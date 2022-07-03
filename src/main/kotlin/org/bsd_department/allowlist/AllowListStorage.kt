@@ -15,28 +15,62 @@
 
 package org.lvxnull.allowlist
 
+import org.apache.logging.log4j.LogManager
+import java.io.IOException
 import java.nio.file.Path
-import java.sql.DriverManager
 
-class AllowListStorage(configRoot: Path): AutoCloseable {
-    private val dbPath = configRoot.resolve("allowlist.db")
-    private val connection = DriverManager.getConnection("jdbc:sqlite:$dbPath").apply {
-        createStatement().use {
-            it.execute("""CREATE TABLE IF NOT EXISTS allowlist(
-            |  name TEXT PRIMARY KEY,
-            |  timestamp INTEGER
-            |)""".trimMargin())
+class AllowListStorage(configRoot: Path): AutoCloseable, Iterable<String> {
+    private companion object {
+        private val nameRegex = Regex("^\\w{3,16}$")
+        private val logger = LogManager.getLogger("AllowList")
+    }
+
+    private val allowed: MutableSet<String> = mutableSetOf()
+    private val listFile = configRoot.resolve("allowlist.txt").toFile().apply {
+        createNewFile()
+    }
+    private var loaded = false
+
+    /**
+     * Loads the allowlist from disk once. Subsequent calls will have no effect.
+     */
+    @Throws(IOException::class)
+    fun load() {
+        if(loaded) return
+        listFile.bufferedReader().use {
+            var nth = 1
+            var line = it.readLine()?.trim()
+            while(line != null) {
+                if(nameRegex.matchEntire(line) != null) {
+                    allowed.add(line)
+                } else {
+                    logger.warn("Line {}: Ignoring invalid name {}", nth, line)
+                }
+                line = it.readLine()?.trim()
+                ++nth
+            }
+        }
+        loaded = true
+    }
+
+    fun save() {
+        listFile.bufferedWriter().use {
+            for(n in allowed) {
+                it.write(n)
+                it.newLine()
+            }
         }
     }
 
-    fun isAllowed(name: String): Boolean {
-        connection.prepareStatement("SELECT 1 FROM allowlist WHERE name = ? LIMIT 1").use {
-            it.setString(1, name)
-            return it.executeQuery().next()
-        }
-    }
+    override fun close() = save()
 
-    override fun close() {
-        connection.close()
-    }
+    override fun iterator() = allowed.asIterable().iterator()
+
+    fun isAllowed(name: String) = allowed.contains(name)
+
+    fun add(name: String) = allowed.add(name)
+
+    fun clear() = allowed.clear()
+
+    fun remove(name: String) = allowed.remove(name)
 }
