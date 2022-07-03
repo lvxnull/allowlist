@@ -15,10 +15,15 @@
 
 package org.lvxnull.allowlist
 
+import com.mojang.brigadier.CommandDispatcher
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
+import net.minecraft.server.command.CommandManager
+import net.minecraft.server.command.CommandManager.literal
+import net.minecraft.text.Text
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -32,6 +37,21 @@ object AllowList: ModInitializer {
     override fun onInitialize() {
         logger.info("Starting allowlist {}", meta.version)
         storage.load()
+
+        CommandRegistrationCallback.EVENT.register { dispatcher, _ ->
+            dispatcher.register(
+                literal("al").requires { s -> s.hasPermissionLevel(3) }.then(
+                    literal("list").executes {
+                        val sb = StringBuilder("§ePlayers currently allowed:§r\n")
+                        for(p in storage) {
+                            sb.appendLine(" - §a$p§r")
+                        }
+                        it.source.sendFeedback(Text.of(sb.toString()), false)
+                        1
+                    }
+                )
+            )
+        }
 
         ServerLifecycleEvents.SERVER_STOPPING.register {
             onClose()

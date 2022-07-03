@@ -44,7 +44,7 @@ class AllowListStorage(configRoot: Path): AutoCloseable, Iterable<String> {
                 if(nameRegex.matchEntire(line) != null) {
                     allowed.add(line)
                 } else {
-                    logger.warn("Line {}: Ignoring invalid name {}", nth, line)
+                    logger.warn("Line {}: Ignoring invalid name '{}'", nth, line)
                 }
                 line = it.readLine()?.trim()
                 ++nth
