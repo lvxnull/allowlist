@@ -92,6 +92,11 @@ object AllowList: ModInitializer {
                                 }
                             }
                     )
+                ).then(
+                    literal("version").executes {
+                        it.source.sendFeedback(Text.of("AllowList version ${meta.version}"), false)
+                        1
+                    }
                 )
             )
         }
