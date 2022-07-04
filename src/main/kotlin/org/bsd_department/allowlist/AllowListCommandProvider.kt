@@ -74,7 +74,7 @@ class AllowListCommandProvider(private val meta: ModMetadata,
             context.source.sendFeedback(Text.of("There are currently no users on the allowlist"), false)
             return
         }
-        val text: LiteralText = LiteralText.EMPTY as LiteralText
+        val text = LiteralText.EMPTY.copy()
         text.append(LiteralText("Players currently allowed:\n").formatted(Formatting.YELLOW))
         for(p in storage) {
             text.append(" - ")
