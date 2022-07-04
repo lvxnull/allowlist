@@ -42,12 +42,8 @@ object AllowList: ModInitializer {
         }
 
         ServerLifecycleEvents.SERVER_STOPPING.register {
-            onClose()
+            logger.info("Stopping allowlist {}", meta.version)
+            storage.close()
         }
-    }
-
-    private fun onClose() {
-        logger.info("Stopping allowlist {}", meta.version)
-        storage.close()
     }
 }
