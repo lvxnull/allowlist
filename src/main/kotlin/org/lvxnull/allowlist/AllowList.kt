@@ -15,20 +15,11 @@
 
 package org.lvxnull.allowlist
 
-import com.mojang.brigadier.arguments.StringArgumentType.getString
-import com.mojang.brigadier.arguments.StringArgumentType.string
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModMetadata
-import net.minecraft.command.CommandSource
-import net.minecraft.server.command.CommandManager.argument
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.text.LiteralText
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
