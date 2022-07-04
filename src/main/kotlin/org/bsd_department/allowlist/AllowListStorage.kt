@@ -30,6 +30,8 @@ class AllowListStorage(configRoot: Path): AutoCloseable, Iterable<String> {
         createNewFile()
     }
     private var loaded = false
+    val size: Int
+        get() = allowed.size
 
     /**
      * Loads the allowlist from disk once. Subsequent calls will have no effect.
