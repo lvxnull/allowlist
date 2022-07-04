@@ -49,6 +49,10 @@ object AllowList: ModInitializer {
             dispatcher.register(
                 literal("al").requires { s -> s.hasPermissionLevel(3) }.then(
                     literal("list").executes {
+                        if(storage.size == 0) {
+                            it.source.sendFeedback(Text.of("There are currently no users on the allowlist"), false)
+                            return@executes 1
+                        }
                         val text: LiteralText = LiteralText.EMPTY as LiteralText
                         text.append(LiteralText("Players currently allowed:\n").formatted(Formatting.YELLOW))
                         for(p in storage) {
