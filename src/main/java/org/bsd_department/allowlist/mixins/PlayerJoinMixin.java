@@ -33,7 +33,7 @@ public class PlayerJoinMixin {
             cancellable = true)
     private void onJoin(SocketAddress ignored, GameProfile profile, CallbackInfoReturnable<Text> info) {
         if(!AllowList.INSTANCE.getStorage().isAllowed(profile.getName())) {
-            info.setReturnValue(Text.of("You're have not been allowed on this server"));
+            info.setReturnValue(Text.of("You have not been allowed on this server"));
         }
     }
 }
