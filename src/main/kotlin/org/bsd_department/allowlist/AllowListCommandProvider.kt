@@ -43,6 +43,11 @@ inline fun <T: MCArgumentBuilder<T>> T.executesCommand(crossinline command: (MCC
 
 class AllowListCommandProvider(private val meta: ModMetadata,
                                private val storage: AllowListStorage) {
+    private companion object {
+        val INVALID_PLAYER_NAME_EXCEPTION = SimpleCommandExceptionType(Text.of("Invalid player name"))
+        val ALREADY_ALLOWED_EXCEPTION = SimpleCommandExceptionType(Text.of("Player is already on allowlist"))
+        val NOT_ALLOWED_EXCEPTION = SimpleCommandExceptionType(Text.of("Player not on allowlist"))
+    }
     private var registered = false
 
     fun register(dispatcher: MCCommandDispatcher) {
@@ -86,7 +91,7 @@ class AllowListCommandProvider(private val meta: ModMetadata,
 
     private fun remove(context: MCCommandContext, player: String) {
         if(!storage.remove(player)) {
-            throw SimpleCommandExceptionType(Text.of("Player not on allowlist")).create()
+            throw NOT_ALLOWED_EXCEPTION.create()
         }
 
         context.source.sendFeedback(Text.of("Player $player has been removed from allowlist"), true)
@@ -95,11 +100,11 @@ class AllowListCommandProvider(private val meta: ModMetadata,
     private fun add(context: MCCommandContext, player: String) {
         try {
             if(!storage.add(player)) {
-                throw SimpleCommandExceptionType(Text.of("Player is already on allowlist")).create()
+                throw ALREADY_ALLOWED_EXCEPTION.create()
             }
             context.source.sendFeedback(Text.of("Player $player has been added to allowlist"), true)
         } catch(e: IllegalArgumentException) {
-            throw SimpleCommandExceptionType(Text.of("Invalid player name")).create()
+            throw INVALID_PLAYER_NAME_EXCEPTION.create()
         }
     }
 
