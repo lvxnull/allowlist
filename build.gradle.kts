@@ -8,13 +8,14 @@ base {
     val archivesBaseName: String by project
     archivesName.set(archivesBaseName)
 }
+
+val minecraftVersion: String by project
 val modVersion: String by project
-version = modVersion
+version = "$modVersion+$minecraftVersion"
 val mavenGroup: String by project
 group = mavenGroup
 repositories {}
 dependencies {
-    val minecraftVersion: String by project
     minecraft("com.mojang", "minecraft", minecraftVersion)
     val yarnMappings: String by project
     mappings("net.fabricmc", "yarn", yarnMappings, null, "v2")
