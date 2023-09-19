@@ -26,7 +26,6 @@ import net.minecraft.command.CommandSource
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
@@ -79,11 +78,11 @@ class AllowListCommandProvider(private val meta: ModMetadata,
             context.source.sendFeedback(Text.of("There are currently no users on the allowlist"), false)
             return
         }
-        val text = LiteralText.EMPTY.copy()
-        text.append(LiteralText("Players currently allowed:\n").formatted(Formatting.YELLOW))
+        val text = Text.empty()
+        text.append(Text.literal("Players currently allowed:\n").formatted(Formatting.YELLOW))
         for(p in storage) {
             text.append(" - ")
-                .append(LiteralText(p).formatted(Formatting.GREEN))
+                .append(Text.literal(p).formatted(Formatting.GREEN))
                 .append("\n")
         }
         context.source.sendFeedback(text, false)
