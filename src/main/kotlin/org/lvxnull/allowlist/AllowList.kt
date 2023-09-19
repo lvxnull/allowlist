@@ -37,6 +37,7 @@ object AllowList: ModInitializer {
     val meta: ModMetadata = FabricLoader.getInstance().getModContainer("allowlist").get().metadata
     val logger: Logger = LogManager.getLogger("AllowList")
     val storage = AllowListStorage(FabricLoader.getInstance().configDir)
+    val commandProvider = AllowListCommandProvider(meta, storage)
 
     override fun onInitialize() {
         logger.info("Starting allowlist {}", meta.version)
@@ -46,63 +47,7 @@ object AllowList: ModInitializer {
         }
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _ ->
-            dispatcher.register(
-                literal("al").requires { s -> s.hasPermissionLevel(3) }.then(
-                    literal("list").executes {
-                        if(storage.size == 0) {
-                            it.source.sendFeedback(Text.of("There are currently no users on the allowlist"), false)
-                            return@executes 1
-                        }
-                        val text: LiteralText = LiteralText.EMPTY as LiteralText
-                        text.append(LiteralText("Players currently allowed:\n").formatted(Formatting.YELLOW))
-                        for(p in storage) {
-                            text.append(" - ")
-                                .append(LiteralText(p).formatted(Formatting.GREEN))
-                                .append("\n")
-                        }
-                        it.source.sendFeedback(text, false)
-                        1
-                    }
-                ).then(
-                    literal("remove").then(
-                        argument("player", string())
-                            .suggests { _, builder -> CommandSource.suggestMatching(storage, builder) }
-                            .executes {
-                                val player = getString(it, "player")
-                                if(!storage.remove(player)) {
-                                    throw SimpleCommandExceptionType(Text.of("Player not on allowlist")).create()
-                                }
-
-                                it.source.sendFeedback(Text.of("Player $player has been removed from allowlist"), true)
-                                1
-                            }
-                    )
-                ).then(
-                    literal("add").then(
-                        argument("player", string())
-                            .suggests { c, builder ->
-                                CommandSource.suggestMatching(c.source.server.playerNames.filterNot(storage::isAllowed), builder)
-                            }
-                            .executes {
-                                val player = getString(it, "player")
-                                try {
-                                    if(!storage.add(player)) {
-                                        throw SimpleCommandExceptionType(Text.of("Player is already on allowlist")).create()
-                                    }
-                                    it.source.sendFeedback(Text.of("Player $player has been added to allowlist"), true)
-                                    1
-                                } catch(e: IllegalArgumentException) {
-                                    throw SimpleCommandExceptionType(Text.of("Invalid player name")).create()
-                                }
-                            }
-                    )
-                ).then(
-                    literal("version").executes {
-                        it.source.sendFeedback(Text.of("AllowList version ${meta.version}"), false)
-                        1
-                    }
-                )
-            )
+            commandProvider.register(dispatcher)
         }
 
         ServerLifecycleEvents.SERVER_STOPPING.register {
