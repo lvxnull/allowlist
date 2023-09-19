@@ -2,6 +2,7 @@ plugins {
     id("fabric-loom")
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm").version(kotlinVersion)
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 base {
     val archivesBaseName: String by project
@@ -23,7 +24,9 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+    implementation("org.xerial:sqlite-jdbc:3.34.0")
 }
+
 tasks {
     val javaVersion = JavaVersion.VERSION_17
     withType<JavaCompile> {
@@ -37,7 +40,24 @@ tasks {
         sourceCompatibility = javaVersion.toString()
         targetCompatibility = javaVersion.toString()
     }
-    jar { from("LICENSE") { rename { "${it}_${base.archivesName}" } } }
+
+    jar {
+        enabled = false
+    }
+
+    shadowJar {
+        from("LICENSE")
+        destinationDirectory.set(buildDir.resolve("devlibs"))
+        dependencies {
+            include(dependency("org.xerial:sqlite-jdbc:.*"))
+            include(dependency("org.jetbrains.kotlin:kotlin-stdlib:.*"))
+        }
+    }
+
+    remapJar {
+        inputFile.set(shadowJar.get().archiveFile)
+    }
+
     processResources {
         inputs.property("version", project.version)
         filesMatching("fabric.mod.json") { expand(mutableMapOf("version" to project.version)) }
