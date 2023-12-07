@@ -1,13 +1,9 @@
 pluginManagement {
     repositories {
+        maven("https://maven.quiltmc.org/repository/release") { name = "Quilt" }
+        // Currently needed for Intermediary and other temporary dependencies
         maven("https://maven.fabricmc.net") { name = "Fabric" }
         mavenCentral()
         gradlePluginPortal()
-    }
-    plugins {
-        val loomVersion: String by settings
-        id("fabric-loom").version(loomVersion)
-        val kotlinVersion: String by System.getProperties()
-        kotlin("jvm").version(kotlinVersion)
     }
 }

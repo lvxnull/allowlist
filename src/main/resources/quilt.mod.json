@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "id": "allowlist",
+    "group": "org.lvxnull",
+    "version": "${version}",
+    "metadata": {
+      "name": "AllowList",
+      "description": "A name-based allowlist mod for quilt",
+      "contributors": {
+        "lvxnull": "Owner"
+      }
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "server_init": "org.lvxnull.allowlist.AllowList"
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "versions": ">=0.22.1-beta.1"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "versions": ">=7.4.0"
+      },
+      {
+        "id": "minecraft",
+        "versions": ">=1.20.1"
+      }
+    ]
+  },
+  "minecraft": {
+    "environment": "dedicated_server"
+  },
+  "mixin": "allowlist.mixins.json"
+}

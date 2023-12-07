@@ -1,72 +1,60 @@
 plugins {
-    id("fabric-loom")
-    val kotlinVersion: String by System.getProperties()
-    kotlin("jvm").version(kotlinVersion)
-    //id("com.github.johnrengelman.shadow") version "7.1.2"
+    alias(libs.plugins.quilt.loom)
 }
+
 base {
     val archivesBaseName: String by project
     archivesName.set(archivesBaseName)
 }
 
-val minecraftVersion: String by project
-val modVersion: String by project
-version = "$modVersion+$minecraftVersion"
-val mavenGroup: String by project
-group = mavenGroup
-repositories {}
+version = "${project.version}+${libs.versions.minecraft.get()}"
+
+loom {
+    mods {
+        register("allowlist") {
+            sourceSet("main")
+        }
+    }
+}
+
 dependencies {
-    minecraft("com.mojang", "minecraft", minecraftVersion)
-    val yarnMappings: String by project
-    mappings("net.fabricmc", "yarn", yarnMappings, null, "v2")
-    val loaderVersion: String by project
-    modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
-    val fabricVersion: String by project
-    modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
-    val fabricKotlinVersion: String by project
-    modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+    minecraft(libs.minecraft)
+    mappings(variantOf(libs.quilt.mappings) { classifier("intermediary-v2") })
+
+    modImplementation(libs.quilted.fabric.api)
+    modImplementation(libs.quilt.loader)
 }
 
 tasks {
-    val javaVersion = JavaVersion.VERSION_17
-    withType<JavaCompile> {
+    processResources {
+        inputs.property("version", version)
+
+        filesMatching("quilt.mod.json") {
+            expand(mapOf("version" to version))
+        }
+    }
+
+    withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
-        options.release.set(javaVersion.toString().toInt())
+        // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
+        options.release = 17
     }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions { jvmTarget = javaVersion.toString() }
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
-    }
-
-    jar {
-        from("LICENSE")
-    }
-
-    /*shadowJar {
-        destinationDirectory.set(buildDir.resolve("devlibs"))
-    }
-
-    remapJar {
-        inputFile.set(shadowJar.get().archiveFile)
-    }*/
 
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
     }
 
-    processResources {
-        inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") { expand(mutableMapOf("version" to project.version)) }
+    jar {
+        from("LICENSE") {
+            rename { "${it}_${base.archivesName}" }
+        }
     }
 
     java {
-        toolchain { languageVersion.set(JavaLanguageVersion.of(javaVersion.toString())) }
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
+        // Still required by IDEs such as Eclipse and Visual Studio Code
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         withSourcesJar()
     }
 }
