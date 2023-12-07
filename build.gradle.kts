@@ -4,7 +4,7 @@ plugins {
 
 base {
     val archivesBaseName: String by project
-    archivesName.set(archivesBaseName)
+    archivesName = archivesBaseName
 }
 
 version = "${project.version}+${libs.versions.minecraft.get()}"
@@ -47,7 +47,7 @@ tasks {
 
     jar {
         from("LICENSE") {
-            rename { "${it}_${base.archivesName}" }
+            rename { "${it}_${base.archivesName.get()}" }
         }
     }
 
