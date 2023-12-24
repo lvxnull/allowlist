@@ -3,6 +3,7 @@ package org.lvxnull.allowlist;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -12,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.quiltmc.loader.api.ModMetadata;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
@@ -22,11 +24,13 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public final class AllowListCommandProvider {
     private static final SimpleCommandExceptionType NOT_LISTED_EXCEPTION =
-            new SimpleCommandExceptionType(Text.of("Player not on allowlist"));
+        new SimpleCommandExceptionType(Text.of("Player not on allowlist"));
     private static final SimpleCommandExceptionType ALREADY_LISTED_EXCEPTION =
-            new SimpleCommandExceptionType(Text.of("Player alredy on allowlist"));
+        new SimpleCommandExceptionType(Text.of("Player alredy on allowlist"));
     private static final SimpleCommandExceptionType INVALID_PLAYER_NAME_EXCEPTION =
-            new SimpleCommandExceptionType(Text.of("Invalid player name"));
+        new SimpleCommandExceptionType(Text.of("Invalid player name"));
+    private static final DynamicCommandExceptionType IO_FAILED_EXCEPTION =
+        new DynamicCommandExceptionType(o -> Text.of((String)o));
     private boolean registered = false;
     private final ModMetadata meta;
     private final AllowListStorage storage;
@@ -41,25 +45,28 @@ public final class AllowListCommandProvider {
     }
 
     public void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-
-        if(registered) return;
+        if (registered) return;
         dispatcher.register(
-                literal("al")
-                              .requires(s -> s.hasPermissionLevel(3))
-                              .then(literal("list").executes(this::list))
-                              .then(
-                                literal("remove").then(
-                                        argument("player", string())
-                                                .suggests((ctx, builder) -> CommandSource.suggestMatching(storage, builder))
-                                                .executes(ctx -> remove(ctx, getString(ctx, "player")))
-                                )
-                        ).then(
-                                literal("add").then(
-                                        argument("player", string())
-                                                .suggests(this::suggestUnlistedPlayers)
-                                                .executes(ctx -> add(ctx, getString(ctx, "player")))
-                                )
-                        ).then(literal("version").executes(this::version))
+            literal("al")
+                .requires(s -> s.hasPermissionLevel(3))
+                .then(literal("list").executes(this::list))
+                .then(
+                    literal("remove").then(
+                        argument("player", string())
+                            .suggests((ctx, builder) -> CommandSource.suggestMatching(storage, builder))
+                            .executes(ctx -> remove(ctx, getString(ctx, "player")))
+                    )
+                ).then(
+                    literal("add").then(
+                        argument("player", string())
+                            .suggests(this::suggestUnlistedPlayers)
+                            .executes(ctx -> add(ctx, getString(ctx, "player")))
+                    )
+                )
+                .then(literal("overwrite").executes(this::overwrite))
+                .then(literal("force-reload").executes(this::force_reload))
+                .then(literal("merge").executes(this::merge))
+                .then(literal("version").executes(this::version))
 
 
         );
@@ -103,6 +110,39 @@ public final class AllowListCommandProvider {
         } catch(IllegalArgumentException e) {
             throw INVALID_PLAYER_NAME_EXCEPTION.create();
         }
+        return 1;
+    }
+
+    private int force_reload(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        try {
+            storage.reload();
+            ctx.getSource().sendFeedback(() -> Text.of("List reloaded from file."), false);
+        } catch (IOException e) {
+            throw IO_FAILED_EXCEPTION.create("List reload failed.");
+        }
+
+        return 1;
+    }
+
+    private int merge(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        try {
+            storage.load();
+            ctx.getSource().sendFeedback(() -> Text.of("Merged all entries from disk with current entries."), false);
+        } catch (IOException e) {
+            throw IO_FAILED_EXCEPTION.create("List merge failed.");
+        }
+
+        return 1;
+    }
+
+    private int overwrite(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        try {
+            storage.save();
+            ctx.getSource().sendFeedback(() -> Text.of("Allowlist saved successfully."), false);
+        } catch (IOException e) {
+            throw IO_FAILED_EXCEPTION.create("List reload failed.");
+        }
+
         return 1;
     }
 

@@ -11,16 +11,14 @@ import java.util.regex.Pattern;
 
 public final class AllowListStorage implements AutoCloseable, Iterable<String> {
     private static final Pattern nameRegex = Pattern.compile("^\\w{3,16}$");
-    private final Set<String> allowed = new LinkedHashSet<>();
+    private Set<String> allowed = new LinkedHashSet<>();
     private final File listFile;
-    private boolean loaded = false;
 
     public AllowListStorage(Path configRoot) {
         listFile = configRoot.resolve("allowlist.txt").toFile();
     }
 
-    public void load() throws IOException {
-        if(loaded) return;
+    private Set<String> load(Set<String> set) throws IOException {
         //noinspection ResultOfMethodCallIgnored
         listFile.createNewFile();
         try(var reader = new BufferedReader(new FileReader(listFile))) {
@@ -29,9 +27,9 @@ public final class AllowListStorage implements AutoCloseable, Iterable<String> {
 
             while(line != null) {
                 line = line.trim();
-                try {
-                    add(line);
-                } catch(IllegalArgumentException e) {
+                if(nameRegex.matcher(line).matches()) {
+                    set.add(line);
+                } else {
                     AllowList.LOGGER.warn("Line {}: Ignoring invalid name '{}'", nth, line);
                 }
                 line = reader.readLine();
@@ -39,7 +37,15 @@ public final class AllowListStorage implements AutoCloseable, Iterable<String> {
             }
         }
 
-        loaded = true;
+        return set;
+    }
+
+    public void load() throws IOException {
+        load(allowed);
+    }
+
+    public void reload() throws IOException {
+        allowed = load(new LinkedHashSet<>());
     }
 
     public void save() throws IOException {
