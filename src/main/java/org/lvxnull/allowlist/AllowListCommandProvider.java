@@ -92,7 +92,7 @@ public final class AllowListCommandProvider {
             throw NOT_LISTED_EXCEPTION.create();
         }
 
-        ctx.getSource().sendFeedback(() -> Text.of(String.format("Player %s has been removed from the allowlist", player)), false);
+        ctx.getSource().sendFeedback(() -> colorize("&cPlayer&r &b&<%s&>&r &chas been removed from the allowlist", player), false);
         return 1;
     }
 
@@ -101,7 +101,7 @@ public final class AllowListCommandProvider {
             if(!storage.add(player)) {
                 throw ALREADY_LISTED_EXCEPTION.create();
             }
-            ctx.getSource().sendFeedback(() -> Text.of(String.format("Player %s has been added to the allowlist", player)), false);
+            ctx.getSource().sendFeedback(() -> colorize("&aPlayer&r &b&<%s&> &ahas been added to the allowlist", player), false);
         } catch(IllegalArgumentException e) {
             throw INVALID_PLAYER_NAME_EXCEPTION.create();
         }
@@ -111,7 +111,7 @@ public final class AllowListCommandProvider {
     private int force_reload(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         try {
             storage.reload();
-            ctx.getSource().sendFeedback(() -> Text.of("List reloaded from file."), false);
+            ctx.getSource().sendFeedback(() -> colorize("&aList reloaded from file"), false);
         } catch (IOException e) {
             throw IO_FAILED_EXCEPTION.create("List reload failed.");
         }
@@ -122,7 +122,7 @@ public final class AllowListCommandProvider {
     private int merge(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         try {
             storage.load();
-            ctx.getSource().sendFeedback(() -> Text.of("Merged all entries from disk with current entries."), false);
+            ctx.getSource().sendFeedback(() -> colorize("&aMerged all entries from disk with current entries."), false);
         } catch (IOException e) {
             throw IO_FAILED_EXCEPTION.create("List merge failed.");
         }
@@ -133,7 +133,7 @@ public final class AllowListCommandProvider {
     private int overwrite(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         try {
             storage.save();
-            ctx.getSource().sendFeedback(() -> Text.of("Allowlist saved successfully."), false);
+            ctx.getSource().sendFeedback(() -> colorize("&aList saved successfully"), false);
         } catch (IOException e) {
             throw IO_FAILED_EXCEPTION.create("List reload failed.");
         }
@@ -142,7 +142,7 @@ public final class AllowListCommandProvider {
     }
 
     private int version(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendFeedback(() -> Text.of(String.format("AllowList version %s", meta.version())), false);
+        ctx.getSource().sendFeedback(() -> colorize("&e&l[&r&9AllowList&e&l]&r version &a%s", meta.version()), false);
         return 1;
     }
 }
