@@ -10,7 +10,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.quiltmc.loader.api.ModMetadata;
 
 import java.io.IOException;
@@ -21,6 +20,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
+import static org.lvxnull.allowlist.AllowListUtil.colorize;
 
 public final class AllowListCommandProvider {
     private static final SimpleCommandExceptionType NOT_LISTED_EXCEPTION =
@@ -67,8 +67,6 @@ public final class AllowListCommandProvider {
                 .then(literal("force-reload").executes(this::force_reload))
                 .then(literal("merge").executes(this::merge))
                 .then(literal("version").executes(this::version))
-
-
         );
         registered = true;
     }
@@ -79,13 +77,10 @@ public final class AllowListCommandProvider {
             ctx.getSource().sendFeedback(() -> Text.of("There are currently no users on the allowlist"), false);
             return 2;
         }
-        var text = Text.literal("Players currently on the allowlist:\n")
-                       .formatted(Formatting.YELLOW);
-        for(var p: storage) {
-            text.append(" - ")
-                .append(Text.literal(p).formatted(Formatting.GREEN))
-                .append("\n");
 
+        var text = colorize("&ePlayers currently on the allowlist:\n");
+        for(var p: storage) {
+            text.append(colorize(" - &a&<%s&>\n", p));
         }
         ctx.getSource().sendFeedback(() -> text, false);
 
