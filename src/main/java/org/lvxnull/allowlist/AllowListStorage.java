@@ -14,8 +14,13 @@ public final class AllowListStorage implements AutoCloseable, Iterable<String> {
     private Set<String> allowed = new LinkedHashSet<>();
     private final File listFile;
 
-    public AllowListStorage(Path configRoot) {
+    public AllowListStorage(Path configRoot) throws IOException {
+        var ignored = configRoot.toFile().mkdirs();
         listFile = configRoot.resolve("allowlist.txt").toFile();
+        if(!listFile.exists() && !listFile.createNewFile()) {
+            // TODO: Throw a better exception here
+            throw new IOException("Cannot create allowlist file");
+        }
     }
 
     private Set<String> load(Set<String> set) throws IOException {

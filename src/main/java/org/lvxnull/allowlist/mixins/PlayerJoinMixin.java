@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.text.Text;
 import org.lvxnull.allowlist.AllowList;
+import org.lvxnull.allowlist.AllowListConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,7 +19,7 @@ public final class PlayerJoinMixin {
             cancellable = true)
     private void onJoin(SocketAddress ignored, GameProfile profile, CallbackInfoReturnable<Text> info) {
         if(!AllowList.getStorage().contains(profile.getName())) {
-            info.setReturnValue(Text.of("Not on whitelist"));
+            info.setReturnValue(AllowListConfig.INSTANCE.messageText);
         }
     }
 }
