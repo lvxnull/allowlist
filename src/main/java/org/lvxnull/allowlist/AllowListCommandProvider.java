@@ -26,7 +26,7 @@ public final class AllowListCommandProvider {
     private static final SimpleCommandExceptionType NOT_LISTED_EXCEPTION =
         new SimpleCommandExceptionType(Text.of("Player not on allowlist"));
     private static final SimpleCommandExceptionType ALREADY_LISTED_EXCEPTION =
-        new SimpleCommandExceptionType(Text.of("Player alredy on allowlist"));
+        new SimpleCommandExceptionType(Text.of("Player already on allowlist"));
     private static final SimpleCommandExceptionType INVALID_PLAYER_NAME_EXCEPTION =
         new SimpleCommandExceptionType(Text.of("Invalid player name"));
     private static final DynamicCommandExceptionType IO_FAILED_EXCEPTION =
@@ -78,7 +78,7 @@ public final class AllowListCommandProvider {
             return 2;
         }
 
-        var text = colorize("&ePlayers currently on the allowlist:\n");
+        var text = colorize("Players currently on the allowlist:\n");
         for(var p: storage) {
             text.append(colorize(" - &a&<%s&>\n", p));
         }
@@ -92,7 +92,7 @@ public final class AllowListCommandProvider {
             throw NOT_LISTED_EXCEPTION.create();
         }
 
-        ctx.getSource().sendFeedback(() -> colorize("&cPlayer&r &b&<%s&>&r &chas been removed from the allowlist", player), false);
+        ctx.getSource().sendFeedback(() -> colorize("Player &c&<%s&>&r has been removed from the allowlist", player), false);
         return 1;
     }
 
@@ -101,7 +101,7 @@ public final class AllowListCommandProvider {
             if(!storage.add(player)) {
                 throw ALREADY_LISTED_EXCEPTION.create();
             }
-            ctx.getSource().sendFeedback(() -> colorize("&aPlayer&r &b&<%s&> &ahas been added to the allowlist", player), false);
+            ctx.getSource().sendFeedback(() -> colorize("Player &a&<%s&>&r has been added to the allowlist", player), false);
         } catch(IllegalArgumentException e) {
             throw INVALID_PLAYER_NAME_EXCEPTION.create();
         }
@@ -142,7 +142,7 @@ public final class AllowListCommandProvider {
     }
 
     private int version(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendFeedback(() -> colorize("&e&l[&r&9AllowList&e&l]&r version &a%s", meta.version()), false);
+        ctx.getSource().sendFeedback(() -> colorize("AllowList version &a%s", meta.version()), false);
         return 1;
     }
 }
