@@ -9,7 +9,7 @@ import org.quiltmc.loader.api.config.v2.QuiltConfig;
 import static org.lvxnull.allowlist.AllowListUtil.colorize;
 
 public class AllowListConfig extends ReflectiveConfig {
-    public static final AllowListConfig INSTANCE = QuiltConfig.create(AllowList.MOD_ID, AllowList.MOD_ID, AllowListConfig.class);
+    public static final AllowListConfig INSTANCE = QuiltConfig.create(AllowList.MOD_ID, "config", AllowListConfig.class);
 
     @Processor("processMessage")
     public final TrackedValue<String> message = this.value("&cYou're not allowed to enter");
