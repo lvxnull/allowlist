@@ -3,7 +3,6 @@ package org.lvxnull.allowlist;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.ModDependency;
 import org.quiltmc.loader.api.QuiltLoader;
 import org.quiltmc.qsl.base.api.entrypoint.server.DedicatedServerModInitializer;
 import org.quiltmc.qsl.command.api.CommandRegistrationCallback;
@@ -29,7 +28,7 @@ public final class AllowList implements DedicatedServerModInitializer {
         try {
             storage = new AllowListStorage(QuiltLoader.getConfigDir().resolve(config.savePath()));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
 
         var commandProvider = new AllowListCommandProvider(meta, storage);
